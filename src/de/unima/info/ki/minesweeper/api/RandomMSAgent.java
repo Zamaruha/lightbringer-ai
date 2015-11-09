@@ -24,12 +24,7 @@ public class RandomMSAgent extends MSAgent {
 			
 		} while(feedback >= 0 && !field.solved());
 		
-		if (field.solved()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return field.solved();
 	}
 
 }

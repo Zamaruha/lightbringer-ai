@@ -19,12 +19,8 @@ public class UsageExample {
 				success++;	
 			}
 		}
-		double rate = (double)success / (double)iterations;
-		System.out.println("Rate: " + rate);
-		
-
-		
-
+		double rate = (double) success / (double) iterations;
+		System.out.println("Solved: " + success+  ", Iterations: " + iterations + ", Rate: " + rate);
 		
 	}
 
