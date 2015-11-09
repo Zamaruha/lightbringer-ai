@@ -2,7 +2,6 @@ package de.unima.info.ki.minesweeper.api;
 
 public class UsageExample {
 
-
 	public static void main(String[] args) {
 
 		// use smaller numbers for larger fields 
@@ -21,7 +20,7 @@ public class UsageExample {
 			}
 		}
 		double rate = (double)success / (double)iterations;
-		System.out.println("Erfolgsquote: " + rate);
+		System.out.println("Rate: " + rate);
 		
 
 		
