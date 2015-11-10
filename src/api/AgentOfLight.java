@@ -1,66 +1,94 @@
 package api;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.ArrayList;
+
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.SolverFactory;
+import org.sat4j.reader.DimacsReader;
+import org.sat4j.reader.Reader;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IProblem;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.TimeoutException;
 
 public class AgentOfLight extends MSAgent {
 
     private Random rand;
+    private ArrayList<int[]> KB = new ArrayList<int[]>();
     
-    private void printKnowledge(int value, int x, int y) {
+    private void addKnowledge(int value, int x, int y) {
         int intVal = this.getFieldFromCoordinate(x, y);
-        ArrayList<ArrayList<Integer>> clauses = new ArrayList<ArrayList<Integer>>();
+        KB.add(new int[]{ intVal * -1 });
         ArrayList<Integer> neighbours = getNeighbours(x, y);
-        System.out.println(neighbours.toString());
         
-        int[] combos = new int[neighbours.size()];
-        for (int i = 0; i < neighbours.size(); i++) {
-            combos[i] = neighbours.get(i);
+        // Get the maximum
+        int[] combos = this.convertIntegers(neighbours);
+        populateKB(combos, value + 1, 0, new int[value + 1]);
+        
+        // Get the minimum
+        int count = neighbours.size() - value + 1;
+        populateKB(combos, count, 0, new int[count]);
+        
+        for (int i = 0; i < KB.size(); i++) {
+            System.out.println(Arrays.toString(KB.get(i)));
         }
-        
-        combo(combos, value + 1, 0, new int[value + 1]);
-        
-        
-        /*int[] combos = new int[value];
-        for (int i = 0; i < value; i++) {
-            combos[i] = i;
-        }
-        
-        int index = value - 1;
-        while (true) {
-            ArrayList<Integer> innerList = new ArrayList<Integer>();
-            for (int m = 0; m < value; m++) {
-                innerList.add(neighbours.get(combos[m]));
-            }
-            combos[index]++;
-            while (combos[index] >= neighbours.size() - (value - (index + 1))) {
-                index--;
-                if (index < 0) {
-                    break;
-                }
-            }
-            
-            if (index < 0) {
-                break;
-            }
-        }*/
         
     }
-    
-
-    // combinations2(arr, 3, 0, new String[3]);
-
-    private void combo(int[] arr, int len, int startPosition, int[] result){
+  
+    private void populateKB(int[] arr, int len, int startPosition, int[] result){
         if (len == 0) {
-            System.out.println(Arrays.toString(result));
+            int[] clause = new int[result.length];
+            System.arraycopy(result, 0, clause, 0, result.length);
+            // Invert all the numbers
+            for (int i = 0; i < clause.length; i++) {
+                clause[i] = clause[i] * -1;
+            }
+            KB.add(clause);
             return;
         }       
         for (int i = startPosition; i <= arr.length-len; i++){
             result[result.length - len] = arr[i];
-            combo(arr, len-1, i+1, result);
+            populateKB(arr, len-1, i+1, result);
         }
-    }  
+    }
+    
+    private int[] askKB() {
+        final int MAXVAR = field.getNumOfCols() * field.getNumOfRows();
+        final int NBCLAUSES = KB.size();
+
+        ISolver solver = SolverFactory.newDefault();
+        Reader reader = new DimacsReader(solver);
+
+        solver.newVar(MAXVAR);
+        solver.setExpectedNumberOfClauses(NBCLAUSES);
+
+        for (int i = 0; i < NBCLAUSES; i++) {
+            try {
+                solver.addClause(new VecInt(KB.get(i)));
+
+            } catch (ContradictionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        IProblem problem = solver;
+        try {
+            if (problem.isSatisfiable()) {
+                System.out.println("Satisfiable!");
+                System.out.println(reader.decode(problem.model()));
+                return problem.model();
+            } else {
+                System.out.println("Not satisfiable!");
+            }
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     
     private ArrayList<Integer> getNeighbours(int x, int y) {
         ArrayList<Integer> list = new ArrayList<>();
@@ -99,10 +127,26 @@ public class AgentOfLight extends MSAgent {
         return field.solved();
     }
     
+    private int[] convertIntegers(List<Integer> integers)
+    {
+        int[] ret = new int[integers.size()];
+        Iterator<Integer> iterator = integers.iterator();
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = iterator.next().intValue();
+        }
+        return ret;
+    }
+    
     public static void main(String[] args) {
         AgentOfLight agent = new AgentOfLight();
         agent.setField(new MSField("fields/baby-7x7-1.txt"));
-        agent.printKnowledge(2, 0, 3);
+        System.out.println(agent.field);
+        int x = 0;
+        int y = 4;
+        int value = agent.field.uncover(x, y);
+        System.out.println("Value: " + value);
+        agent.addKnowledge(value, x, y);
+        agent.askKB();
     }
 
 }
