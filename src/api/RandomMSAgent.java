@@ -19,28 +19,32 @@ import org.sat4j.specs.TimeoutException;
 public class RandomMSAgent extends MSAgent {
 
     private Random rand = null;
+    
+    
+    
 
     @Override
     public boolean solve() {
 
-        final int MAXVAR = 1000000;
-        final int NBCLAUSES = 500000;
+        final int MAXVAR = 100;
+        final int NBCLAUSES = 2;
 
         ISolver solver = SolverFactory.newDefault();
         Reader reader = new DimacsReader(solver);
 
-
-        // prepare the solver to accept MAXVAR variables. MANDATORY for MAXSAT
-        // solving
         solver.newVar(MAXVAR);
         solver.setExpectedNumberOfClauses(NBCLAUSES);
         // Feed the solver using Dimacs format, using arrays of int
         // (best option to avoid dependencies on SAT4J IVecInt)
         for (int i = 0; i < NBCLAUSES; i++) {
-            int[] clause = { 1, -3, 4, 1 };
+            int[] clauseOne = { 1, -3, 4, 1 };
+            int[] clauseTwo = { 1, 2 };
+
             // while int [] clause = {1, -3, 7, 0}; is not fine
             try {
-                solver.addClause(new VecInt(clause));
+                solver.addClause(new VecInt(clauseOne));
+                solver.addClause(new VecInt(clauseTwo));
+
             } catch (ContradictionException e) {
                 e.printStackTrace();
             }
@@ -67,10 +71,11 @@ public class RandomMSAgent extends MSAgent {
             x = rand.nextInt(numOfCols);
             y = rand.nextInt(numOfRows);
             feedback = field.uncover(x, y);
+            System.out.println("x: " + x + ", y: " + y);
             System.out.println(this.field);
 
         } while (feedback >= 0 && !field.solved());
-
+        
         return field.solved();
     }
 
