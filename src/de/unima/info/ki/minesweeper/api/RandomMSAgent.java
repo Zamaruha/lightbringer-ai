@@ -21,6 +21,7 @@ public class RandomMSAgent extends MSAgent {
 			x = rand.nextInt(numOfCols);
 			y = rand.nextInt(numOfRows);
 			feedback = field.uncover(x,y);
+			System.out.println(this.field);
 			
 		} while(feedback >= 0 && !field.solved());
 		
