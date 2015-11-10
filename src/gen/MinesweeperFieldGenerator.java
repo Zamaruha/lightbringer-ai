@@ -1,4 +1,4 @@
-package de.unima.info.ki.minesweeper.gen;
+package gen;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,4 +1,4 @@
-package de.unima.info.ki.minesweeper.api;
+package api;
 
 public class UsageExample {
 

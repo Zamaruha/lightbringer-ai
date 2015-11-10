@@ -1,4 +1,4 @@
-package de.unima.info.ki.minesweeper.api;
+package api;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
