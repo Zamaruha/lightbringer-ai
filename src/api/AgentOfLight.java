@@ -27,32 +27,35 @@ public class AgentOfLight extends MSAgent {
         
         // Get the maximum
         int[] combos = this.convertIntegers(neighbours);
-        populateKB(combos, value + 1, 0, new int[value + 1]);
+        populateKB(combos, value + 1, 0, new int[value + 1], -1);
         
         // Get the minimum
         int count = neighbours.size() - value + 1;
-        populateKB(combos, count, 0, new int[count]);
+        populateKB(combos, count, 0, new int[count], 1);
         
         for (int i = 0; i < KB.size(); i++) {
             System.out.println(Arrays.toString(KB.get(i)));
         }
         
     }
+    
+    private int[] multiply(int[] arr, int scalar) {
+        int[] newArr = new int[arr.length];
+        System.arraycopy(arr, 0, newArr, 0, arr.length);
+        for (int i = 0; i < newArr.length; i++) {
+            newArr[i] = newArr[i] * scalar;
+        }
+        return newArr;
+    }
   
-    private void populateKB(int[] arr, int len, int startPosition, int[] result){
+    private void populateKB(int[] arr, int len, int startPosition, int[] result, int scalar){
         if (len == 0) {
-            int[] clause = new int[result.length];
-            System.arraycopy(result, 0, clause, 0, result.length);
-            // Invert all the numbers
-            for (int i = 0; i < clause.length; i++) {
-                clause[i] = clause[i] * -1;
-            }
-            KB.add(clause);
+            KB.add(multiply(result, scalar));
             return;
         }       
         for (int i = startPosition; i <= arr.length-len; i++){
             result[result.length - len] = arr[i];
-            populateKB(arr, len-1, i+1, result);
+            populateKB(arr, len-1, i+1, result, scalar);
         }
     }
     
@@ -95,8 +98,8 @@ public class AgentOfLight extends MSAgent {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 if (dx == 0 && dy == 0) continue;
-                if (x + dx < 0 || x + dx > field.getNumOfCols()) continue;
-                if (y + dy < 0 || y + dy > field.getNumOfRows()) continue;
+                if (x + dx < 0 || x + dx >= field.getNumOfCols()) continue;
+                if (y + dy < 0 || y + dy >= field.getNumOfRows()) continue;
                 list.add(getFieldFromCoordinate(x + dx, y + dy));
             }
         }
@@ -104,7 +107,7 @@ public class AgentOfLight extends MSAgent {
     }
     
     private int getFieldFromCoordinate(int x, int y) {
-        return x + y * field.getNumOfCols();
+        return (x + 1) + y * field.getNumOfCols();
     }
 
 
@@ -142,11 +145,20 @@ public class AgentOfLight extends MSAgent {
         agent.setField(new MSField("fields/baby-7x7-1.txt"));
         System.out.println(agent.field);
         int x = 0;
-        int y = 4;
+        int y = 2;
         int value = agent.field.uncover(x, y);
+        System.out.println(agent.field);
+
+        if (value == -1) {
+            System.out.println("BOMB!");
+            return;
+        }
         System.out.println("Value: " + value);
         agent.addKnowledge(value, x, y);
         agent.askKB();
+        //System.out.println(agent.getNeighbours(6, 1));
+        
+        
     }
 
 }
