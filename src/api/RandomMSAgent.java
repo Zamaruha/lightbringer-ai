@@ -1,13 +1,10 @@
 package api;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Random;
 
 import org.sat4j.core.*;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.reader.DimacsReader;
-import org.sat4j.reader.ParseFormatException;
 import org.sat4j.reader.Reader;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
@@ -30,6 +27,8 @@ public class RandomMSAgent extends MSAgent {
         final int NBCLAUSES = 500000;
 
         ISolver solver = SolverFactory.newDefault();
+        Reader reader = new DimacsReader(solver);
+
 
         // prepare the solver to accept MAXVAR variables. MANDATORY for MAXSAT
         // solving
@@ -52,6 +51,7 @@ public class RandomMSAgent extends MSAgent {
         try {
             if (problem.isSatisfiable()) {
                 System.out.println("Satisfiable!");
+                System.out.println(reader.decode(problem.model()));
             } else {
                 System.out.println("Not satisfiable!");
             }
