@@ -14,6 +14,7 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.ModelIterator;
 
 public class AgentOfLight extends MSAgent {
 
@@ -55,8 +56,10 @@ public class AgentOfLight extends MSAgent {
         final int MAXVAR = field.getNumOfCols() * field.getNumOfRows();
         final int NBCLAUSES = knowledgeBase.size();
 
-        ISolver solver = SolverFactory.newDefault();
-        Reader reader = new DimacsReader(solver);
+        ISolver solver = new ModelIterator(SolverFactory.newDefault());
+        ModelIterator mi = new ModelIterator(solver);
+        mi.setTimeout(60);
+        Reader reader = new DimacsReader(mi);
 
         solver.newVar(MAXVAR);
         solver.setExpectedNumberOfClauses(NBCLAUSES);
@@ -72,13 +75,14 @@ public class AgentOfLight extends MSAgent {
 
         IProblem problem = solver;
         try {
-            if (problem.isSatisfiable()) {
+            while (problem.isSatisfiable()) {
                 System.out.println("Satisfiable!");
-                System.out.println(reader.decode(problem.model()));
-                return problem.model();
-            } else {
-                System.out.println("Not satisfiable!");
+                int[] model = problem.model();
+                System.out.println(Arrays.toString(model));
+                //return problem.model();
             }
+            System.out.println("Not satisfiable!");
+
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
