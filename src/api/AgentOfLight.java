@@ -17,40 +17,32 @@ import org.sat4j.specs.TimeoutException;
 
 public class AgentOfLight extends MSAgent {
 
-    private Random rand;
-    private ArrayList<int[]> KB = new ArrayList<int[]>();
+    private ArrayList<int[]> knowledgeBase = new ArrayList<int[]>();
     
     private void addKnowledge(int value, int x, int y) {
         int intVal = this.getFieldFromCoordinate(x, y);
-        KB.add(new int[]{ intVal * -1 });
+        knowledgeBase.add(new int[]{ intVal * -1 });
         ArrayList<Integer> neighbours = getNeighbours(x, y);
         
         // Get the maximum
-        int[] combos = this.convertIntegers(neighbours);
+        int[] combos = Utils.listToArray(neighbours);
         populateKB(combos, value + 1, 0, new int[value + 1], -1);
         
         // Get the minimum
         int count = neighbours.size() - value + 1;
         populateKB(combos, count, 0, new int[count], 1);
         
-        for (int i = 0; i < KB.size(); i++) {
-            System.out.println(Arrays.toString(KB.get(i)));
+        for (int i = 0; i < knowledgeBase.size(); i++) {
+            System.out.println(Arrays.toString(knowledgeBase.get(i)));
         }
         
     }
     
-    private int[] multiply(int[] arr, int scalar) {
-        int[] newArr = new int[arr.length];
-        System.arraycopy(arr, 0, newArr, 0, arr.length);
-        for (int i = 0; i < newArr.length; i++) {
-            newArr[i] = newArr[i] * scalar;
-        }
-        return newArr;
-    }
+
   
     private void populateKB(int[] arr, int len, int startPosition, int[] result, int scalar){
         if (len == 0) {
-            KB.add(multiply(result, scalar));
+            knowledgeBase.add(Utils.multiply(result, scalar));
             return;
         }       
         for (int i = startPosition; i <= arr.length-len; i++){
@@ -61,7 +53,7 @@ public class AgentOfLight extends MSAgent {
     
     private int[] askKB() {
         final int MAXVAR = field.getNumOfCols() * field.getNumOfRows();
-        final int NBCLAUSES = KB.size();
+        final int NBCLAUSES = knowledgeBase.size();
 
         ISolver solver = SolverFactory.newDefault();
         Reader reader = new DimacsReader(solver);
@@ -71,7 +63,7 @@ public class AgentOfLight extends MSAgent {
 
         for (int i = 0; i < NBCLAUSES; i++) {
             try {
-                solver.addClause(new VecInt(KB.get(i)));
+                solver.addClause(new VecInt(knowledgeBase.get(i)));
 
             } catch (ContradictionException e) {
                 e.printStackTrace();
@@ -110,34 +102,10 @@ public class AgentOfLight extends MSAgent {
         return (x + 1) + y * field.getNumOfCols();
     }
 
-
     @Override
     public boolean solve() {
-        
-        this.rand = new Random();
-        int numOfRows = this.field.getNumOfRows();
-        int numOfCols = this.field.getNumOfCols();
-        int x, y, feedback;
-        do {
-            x = rand.nextInt(numOfCols);
-            y = rand.nextInt(numOfRows);
-            feedback = field.uncover(x, y);
-            System.out.println("x: " + x + ", y: " + y);
-            System.out.println(this.field);
-
-        } while (feedback >= 0 && !field.solved());
-        
+        field.uncover(0, 0);
         return field.solved();
-    }
-    
-    private int[] convertIntegers(List<Integer> integers)
-    {
-        int[] ret = new int[integers.size()];
-        Iterator<Integer> iterator = integers.iterator();
-        for (int i = 0; i < ret.length; i++) {
-            ret[i] = iterator.next().intValue();
-        }
-        return ret;
     }
     
     public static void main(String[] args) {
