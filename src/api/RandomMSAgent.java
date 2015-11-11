@@ -19,9 +19,6 @@ import org.sat4j.specs.TimeoutException;
 public class RandomMSAgent extends MSAgent {
 
     private Random rand = null;
-    
-    
-    
 
     @Override
     public boolean solve() {
@@ -75,7 +72,7 @@ public class RandomMSAgent extends MSAgent {
             System.out.println(this.field);
 
         } while (feedback >= 0 && !field.solved());
-        
+
         return field.solved();
     }
 

@@ -13,9 +13,8 @@ public class Utils {
         }
         return newArr;
     }
-    
-    public static int[] listToArray(List<Integer> integers)
-    {
+
+    public static int[] listToArray(List<Integer> integers) {
         int[] ret = new int[integers.size()];
         Iterator<Integer> iterator = integers.iterator();
         for (int i = 0; i < ret.length; i++) {
@@ -23,5 +22,5 @@ public class Utils {
         }
         return ret;
     }
-    
+
 }

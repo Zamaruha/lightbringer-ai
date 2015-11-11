@@ -14,11 +14,9 @@ public class MinesweeperFieldGenerator {
     private static final String path = "fields/";
     private static final Random rnd = new Random(776);
 
-    public static void generateField(int n, int m, int mineCount,
-            String namePrefix) throws Exception {
+    public static void generateField(int n, int m, int mineCount, String namePrefix) throws Exception {
         boolean[][] field = new boolean[n][m];
-        String fileName = path + namePrefix + n + "x" + m + "-" + mineCount
-                + ".txt";
+        String fileName = path + namePrefix + n + "x" + m + "-" + mineCount + ".txt";
 
         while (mineCount > 0) {
             int rndN = rnd.nextInt(n);
