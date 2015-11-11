@@ -57,9 +57,6 @@ public class AgentOfLight extends MSAgent {
         final int NBCLAUSES = knowledgeBase.size();
 
         ISolver solver = new ModelIterator(SolverFactory.newDefault());
-        ModelIterator mi = new ModelIterator(solver);
-        mi.setTimeout(60);
-        Reader reader = new DimacsReader(mi);
 
         solver.newVar(MAXVAR);
         solver.setExpectedNumberOfClauses(NBCLAUSES);
