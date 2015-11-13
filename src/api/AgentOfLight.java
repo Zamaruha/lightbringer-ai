@@ -106,6 +106,8 @@ public class AgentOfLight extends MSAgent {
 
     @Override
     public boolean solve() {
+        MAXVAR = field.getNumOfCols() * field.getNumOfRows();
+        board = new int[MAXVAR + 1];
         knowledgeBase.newVar(MAXVAR);
         rand = new Random();
         HashSet<Integer> safeFields = new HashSet<>();
@@ -182,10 +184,7 @@ public class AgentOfLight extends MSAgent {
 
     public static void main(String[] args) {
         AgentOfLight agent = new AgentOfLight();
-        agent.setField(new MSField("fields/profi1-30x16-99.txt"));
-        agent.MAXVAR = agent.field.getNumOfCols() * agent.field.getNumOfRows();
-        agent.board = new int[agent.MAXVAR + 1];
-        
+        agent.setField(new MSField("fields/fortgeschrittene1-16x16-40.txt"));        
         
         System.out.println(agent.solve());
     }
