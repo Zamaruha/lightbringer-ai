@@ -118,7 +118,7 @@ public class AgentOfLight extends MSAgent {
             int y;
 
             if (safeFields.isEmpty()) { // no safe moves, guess
-                System.out.println("LUCKY PLS");
+                //System.out.println("LUCKY PLS");
                 int i = rand.nextInt(MAXVAR) + 1;
                 while(board[i] != 0) {
                     i = rand.nextInt(MAXVAR) + 1;
@@ -133,8 +133,8 @@ public class AgentOfLight extends MSAgent {
             }
 
             feedback = field.uncover(x, y);
-            System.out.println("x: " + x + ", y: " + y);
-            System.out.println(field.toString());
+            //System.out.println("x: " + x + ", y: " + y);
+            //System.out.println(field.toString());
 
             if (feedback == -1) { // hit a bomb
                 return false;
