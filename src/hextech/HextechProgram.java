@@ -25,18 +25,15 @@ public class HextechProgram {
             "fields/fortgeschrittene3-16x16-40.txt", // 17 (31/100)
             "fields/fortgeschrittene4-16x16-40.txt", // 18 (45/100)
             "fields/fortgeschrittene5-16x16-40.txt", // 19 (10/100)
-            //"fields/profi1-30x16-99.txt", // 20
-            //"fields/profi2-30x16-99.txt", // 21
-            //"fields/profi3-30x16-99.txt", // 22
-            //"fields/profi4-30x16-99.txt" // 23
+            "fields/profi1-30x16-99.txt",            // 20
+            "fields/profi2-30x16-99.txt",            // 21
+            "fields/profi3-30x16-99.txt",            // 22
+            "fields/profi4-30x16-99.txt"             // 23
     };
     
     public static void main(String[] args) {
-        int iterations = 100;
-        
-        for (String fieldName : fields) {
-            solveField(iterations, fieldName);
-        }
+        int iterations = 20;
+        solveField(iterations, fields[0]);
     }
     
     private static void solveField(int iterations, String fieldName) {
@@ -57,9 +54,7 @@ public class HextechProgram {
                 totalRunTime += runTime;
             }
             count++;
-            double rate = (double) success / (double) count;
-            
-            
+            //double rate = (double) success / (double) count;
             //System.out.println("Solved: " + solved + ", Iteration: " + count
             //        + ", Run Time (ms): " + runTime);
             

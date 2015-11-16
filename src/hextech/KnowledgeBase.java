@@ -1,8 +1,6 @@
 package hextech;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.sat4j.core.VecInt;
 
 public class KnowledgeBase {

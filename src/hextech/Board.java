@@ -83,16 +83,5 @@ public class Board {
         }
         return list;
     }
-    
-    public static void main(String[] args) {
-        Board b = new Board(6, 6);
-        b.getCell(3, 0).setOpen(4);
-        b.getCell(0, 1).setBomb();
-        System.out.println(b);
-        ArrayList<Cell> n = b.getNeighbours(b.getCell(3,  1));
-        System.out.println(n);
-        for (Cell cell : n) {
-            System.out.println(cell.getName());
-        }
-    }
+
 }
