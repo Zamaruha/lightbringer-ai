@@ -2,7 +2,7 @@ package api;
 
 public abstract class MSAgent {
 
-    MSField field = null;
+    protected MSField field = null;
 
     public void setField(MSField field) {
         this.field = field;
