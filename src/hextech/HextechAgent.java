@@ -40,14 +40,14 @@ public class HextechAgent extends MSAgent {
     
     private void addKnowledge(Cell cell) {
         if (cell.isBomb()) {
-            base.pushSingle(cell.getId(), board);
+            base.pushSingle(cell.getId(), board, true);
             return;
         } else if (cell.isHidden()) {
             return;
         }
         
         // Add this as not bomb
-        base.pushSingle(-cell.getId(), board);
+        base.pushSingle(-cell.getId(), board, true);
         
         // Add the clauses for the neighbours
         ArrayList<Cell> neighbourCells = board.getNeighbours(cell);
@@ -129,7 +129,7 @@ public class HextechAgent extends MSAgent {
             log(board.toString());
             
             if (feedback == 0) {
-                base.pushSingle(-cell.getId(), board);
+                base.pushSingle(-cell.getId(), board, true);
                 ArrayList<Cell> neighbourCells = board.getNeighbours(cell);
                 for (Cell neighbourCell : neighbourCells) {
                     addNextMove(neighbourCell);
@@ -143,6 +143,8 @@ public class HextechAgent extends MSAgent {
             }
 
             findNewMoves();
+            
+            log("Knowledgebase size: " + base.size());
             
             
         } while (feedback > -1 && !field.solved());
@@ -164,23 +166,23 @@ public class HextechAgent extends MSAgent {
             //log(board.toString());
            
             //log("Assume bomb on: " + testCell.getName());
-            base.pushSingle(testCell.getId(), board);                    
+            base.pushSingle(testCell.getId(), board, false);                    
             Boolean isSatisfiable = solver.ask(base, allCells.size());
             base.pop();
             if (isSatisfiable == null || !isSatisfiable) {
                 //log("Cant be bomb: " + testCell.getId() + " (" + testCell.getName() + ")\n");
-                base.pushSingle(testCell.getId() * -1, board);
+                base.pushSingle(testCell.getId() * -1, board, true);
                 nextMoves.add(testCell);
                 break;
             }
             
             //log("Assume no bomb on: " + testCell.getName());
-            base.pushSingle(testCell.getId() * -1, board);                    
+            base.pushSingle(testCell.getId() * -1, board, false);                    
             isSatisfiable = solver.ask(base, allCells.size());
             base.pop();
             if (isSatisfiable == null || !isSatisfiable) {
                 //log("Has to be bomb: " + testCell.getId() + " (" + testCell.getName() + ")\n");
-                base.pushSingle(testCell.getId(), board);
+                base.pushSingle(testCell.getId(), board, true);
                 testCell.setBomb();
                 findNewMoves();
                 return;

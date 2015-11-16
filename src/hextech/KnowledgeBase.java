@@ -14,16 +14,50 @@ public class KnowledgeBase {
     }
     
     public void push(Clause clause) {
-        //System.out.println("Pushing: " + clause);
         if (!clauses.contains(clause)) {
             clauses.add(clause);
         }
     }
     
-    public void pushSingle(int literal, Board board) {
+    public void pushSingle(int literal, Board board, boolean optimize) {
         Clause clause = new Clause(board);
         clause.addLiteral(literal);
+        if (optimize) {
+            //optimizeBase(literal, board);
+        }
         this.push(clause);
+    }
+    
+    private void optimizeBase(int target, Board board) {
+        ArrayList<Clause> toRemove = new ArrayList<Clause>();
+        ArrayList<Clause> toAdd = new ArrayList<Clause>();
+        for (Clause clause : clauses) {
+            ArrayList<Integer> allLiterals = clause.getLiterals();
+            for (int literal : allLiterals) {
+                if (target == literal) {
+                    toRemove.add(clause);
+                } else if (target == -literal) {
+                    toAdd.add(removeLiteral(literal, clause, board));
+                    toRemove.add(clause);   
+                }
+            }
+        }
+        for (Clause clause : toRemove) {
+            clauses.remove(clause);
+        }
+        for (Clause clause : toAdd) {
+            clauses.add(clause);
+        }
+    }
+    
+    private Clause removeLiteral(int literal, Clause clause, Board board) {
+        Clause newClause = new Clause(board);
+        for (int newLiteral : clause.getLiterals()) {
+            if (newLiteral != literal) {
+                newClause.addLiteral(newLiteral);
+            }
+        }
+        return newClause;
     }
     
     public Clause pop() {
@@ -43,7 +77,6 @@ public class KnowledgeBase {
     }
     
     public VecInt getVecInt(int index) {
-        //System.out.println("VecInt Array: " + Arrays.toString(getClauseArray(index)));
         return new VecInt(getClauseArray(index));
     }
     
