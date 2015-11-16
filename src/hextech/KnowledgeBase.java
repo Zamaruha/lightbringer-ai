@@ -58,6 +58,16 @@ public class KnowledgeBase {
         return newClause;
     }
     
+    public void runCleanup(Board board) {
+        for (Cell cell : board.getAllCells()) {
+            if (cell.isBomb()) {
+                pushSingle(cell.getId(), board, true);
+            } else if (cell.isOpened()) {
+                pushSingle(-cell.getId(), board, true);
+            }
+        }
+    }
+    
     public Clause pop() {
         return clauses.remove(clauses.size() - 1);
     }
