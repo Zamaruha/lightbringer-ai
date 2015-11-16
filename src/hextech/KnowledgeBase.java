@@ -23,7 +23,7 @@ public class KnowledgeBase {
         Clause clause = new Clause(board);
         clause.addLiteral(literal);
         if (optimize) {
-            //optimizeBase(literal, board);
+            optimizeBase(literal, board);
         }
         this.push(clause);
     }
@@ -36,18 +36,16 @@ public class KnowledgeBase {
             for (int literal : allLiterals) {
                 if (target == literal) {
                     toRemove.add(clause);
+                    break;
                 } else if (target == -literal) {
                     toAdd.add(removeLiteral(literal, clause, board));
-                    toRemove.add(clause);   
+                    toRemove.add(clause);
+                    break;
                 }
             }
         }
-        for (Clause clause : toRemove) {
-            clauses.remove(clause);
-        }
-        for (Clause clause : toAdd) {
-            clauses.add(clause);
-        }
+        clauses.removeAll(toRemove);
+        clauses.addAll(toAdd);
     }
     
     private Clause removeLiteral(int literal, Clause clause, Board board) {
