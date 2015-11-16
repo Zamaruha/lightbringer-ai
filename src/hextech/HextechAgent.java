@@ -105,12 +105,20 @@ public class HextechAgent extends MSAgent {
                 x = cell.getX();
                 y = cell.getY();
             } else {
-                log("We pick a random move.");
-                do {
-                    x = random.nextInt(numOfCols);
-                    y = random.nextInt(numOfRows);
-                    cell = board.getCell(x, y);
-                } while (!cell.isHidden());
+                Cell lowRiskCell = calculateAndGetLowestRisk();
+                if (lowRiskCell != null && lowRiskCell.getRisk() <= 0.21) {
+                    log("Uncovering cell with risk: " + lowRiskCell.getRisk());
+                    x = lowRiskCell.getX();
+                    y = lowRiskCell.getY();
+                    cell = lowRiskCell;
+                } else {
+                    log("We pick a random move.");
+                    do {
+                        x = random.nextInt(numOfCols);
+                        y = random.nextInt(numOfRows);
+                        cell = board.getCell(x, y);
+                    } while (!cell.isHidden());
+                }
             }
             
             log("Uncovering (" + x + ", " + y + ")");
@@ -130,7 +138,7 @@ public class HextechAgent extends MSAgent {
                 log("Found bomb. Game over.");
                 break;
             } else {
-                log("Adding knowledge from feedback");
+                //log("Adding knowledge from feedback");
                 addKnowledge(cell);
             }
 
@@ -153,25 +161,25 @@ public class HextechAgent extends MSAgent {
                 continue;
             }
             
-            log(board.toString());
-            
-            log("Antar at det er en bombe på: " + testCell.getName());
+            //log(board.toString());
+           
+            //log("Assume bomb on: " + testCell.getName());
             base.pushSingle(testCell.getId(), board);                    
             Boolean isSatisfiable = solver.ask(base, allCells.size());
             base.pop();
             if (isSatisfiable == null || !isSatisfiable) {
-                log("Kan umulig være en bombe: " + testCell.getId() + " (" + testCell.getName() + ")\n");
+                //log("Cant be bomb: " + testCell.getId() + " (" + testCell.getName() + ")\n");
                 base.pushSingle(testCell.getId() * -1, board);
                 nextMoves.add(testCell);
                 break;
             }
             
-            log("Antar at er en trygg celle: " + testCell.getName());
+            //log("Assume no bomb on: " + testCell.getName());
             base.pushSingle(testCell.getId() * -1, board);                    
             isSatisfiable = solver.ask(base, allCells.size());
             base.pop();
             if (isSatisfiable == null || !isSatisfiable) {
-                log("Kan umulig være trygg: " + testCell.getId() + " (" + testCell.getName() + ")\n");
+                //log("Has to be bomb: " + testCell.getId() + " (" + testCell.getName() + ")\n");
                 base.pushSingle(testCell.getId(), board);
                 testCell.setBomb();
                 findNewMoves();
@@ -184,6 +192,63 @@ public class HextechAgent extends MSAgent {
         if (this.logging) {
             System.out.println(message);
         }
+    }
+    
+    private Cell calculateAndGetLowestRisk() {
+       ArrayList<Cell> allCells = board.getAllCells();
+
+       for (Cell cell : allCells) {
+           cell.setRisk(-1);
+           cell.setTechValue(cell.getValue());
+       }
+       for (Cell cell : allCells) {
+            if (!cell.isBomb()) {
+                continue;
+            }
+            ArrayList<Cell> neighbours = board.getNeighbours(cell);
+            for (Cell neighbour : neighbours) {
+                if (neighbour.isOpened()) {
+                    neighbour.decrementTechValue();
+                }
+            }
+        }
+        
+        for (Cell cell : allCells) {
+            if (!cell.isOpened()) {
+                continue;
+            }
+            ArrayList<Cell> neighbours = board.getNeighbours(cell);     
+            ArrayList<Cell> hiddenCells = new ArrayList<Cell>();
+            for (Cell neighbour : neighbours) {
+                if (neighbour.isHidden()) {
+                    hiddenCells.add(neighbour);
+                }
+            }
+            if (hiddenCells.size() == 0) {
+                continue;
+            }
+            
+            double risk = (double) cell.getTechValue() / (double) hiddenCells.size();
+            for (Cell hiddenCell : hiddenCells) {
+                if (risk > hiddenCell.getRisk() || risk == 0) {
+                    hiddenCell.setRisk(risk);
+                }
+            }
+        }
+        
+        double lowestRisk = 1;
+        Cell bestCell = null;
+        for (Cell cell : board.getAllCells()) {
+            if (cell.getRisk() < 0) {
+                continue;
+            }
+            if (cell.getRisk() < lowestRisk) {
+                bestCell = cell;
+                lowestRisk = cell.getRisk();
+            }            
+        }
+        log("Found at best a cell with risk " + lowestRisk);
+        return bestCell;
     }
 
 }

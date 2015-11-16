@@ -10,6 +10,8 @@ public class Cell {
     private int TYPE_HIDDEN = 3;
     private int x;
     private int y;
+    private int techValue;
+    private double risk = -1;
     
     public Cell(String name, int id, int x, int y) {
         this.x = x;
@@ -18,6 +20,30 @@ public class Cell {
         this.name = name;
         this.type = TYPE_HIDDEN;
         this.value = 0;
+    }
+    
+    public int getTechValue() {
+        return techValue;
+    }
+    
+    public void setRisk(double risk) {
+        this.risk = risk;
+    }
+    
+    public double getRisk() {
+        return risk;
+    }
+    
+    public void setTechValue(int techValue) {
+        if (techValue > 0) {
+            this.techValue = techValue;
+        } else {
+            this.techValue = 0;
+        }
+    }
+    
+    public void decrementTechValue() {
+        setTechValue(getTechValue() - 1);
     }
     
     public int getX() {
@@ -56,6 +82,7 @@ public class Cell {
         if (value < 0 || value > 8) {
             return;
         }
+        this.techValue = value;
         this.value = value;
         this.type = TYPE_OPENED;
     }
