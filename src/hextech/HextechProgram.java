@@ -32,7 +32,14 @@ public class HextechProgram {
     };
     
     public static void main(String[] args) {
-        int iterations = 500;
+        int iterations = 10;
+        
+        for (String fieldName : fields) {
+            solveField(iterations, fieldName);
+        }
+    }
+    
+    private static void solveField(int iterations, String fieldName) {
         int success = 0;
         int count = 0;
         long totalRunTime = 0;
@@ -40,7 +47,7 @@ public class HextechProgram {
         for (int i = 0; i < iterations; i++) {
             long startTime = System.nanoTime();
             HextechAgent agent = new HextechAgent(false);
-            agent.setField(new MSField(fields[20 + i%4]));
+            agent.setField(new MSField(fieldName));
 
             boolean solved = agent.solve();
             long runTime = (System.nanoTime() - startTime) / 1000000;
@@ -53,14 +60,15 @@ public class HextechProgram {
             double rate = (double) success / (double) count;
             
             
-            System.out.println("Solved: " + solved + ", Iteration: " + count
-                    + ", Run Time (ms): " + runTime);
+            //System.out.println("Solved: " + solved + ", Iteration: " + count
+            //        + ", Run Time (ms): " + runTime);
             
         }
         double rate = (double) success / (double) iterations;
         double avgRT = (double) totalRunTime / (double) success;
+        System.out.println("Results for: " + fieldName);
         System.out.println("Solved: " + success + " of " + iterations
-                + ", Rate: " + rate + ", Average RT (ms): " + avgRT);
+                + ", Rate: " + rate + ", Average RT (ms): " + avgRT + "\n");
     }
 
 }
