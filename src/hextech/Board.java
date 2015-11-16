@@ -18,6 +18,14 @@ public class Board {
         }
     }
     
+    public ArrayList<Cell> getAllCells() {
+        ArrayList<Cell> returnCells = new ArrayList<Cell>();
+        for (ArrayList<Cell> row : cells) {
+            returnCells.addAll(row);
+        }
+        return returnCells;
+    }
+    
     public Cell getCell(int x, int y) {
         return cells.get(y).get(x);
     }

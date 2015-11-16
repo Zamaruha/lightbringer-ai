@@ -40,10 +40,7 @@ public class HextechAgent extends MSAgent {
     
     private void addKnowledge(Cell cell) {
         if (cell.isBomb()) {
-            // Add this as bomb to base
-            Clause clause = new Clause(board);
-            clause.addLiteral(cell.getId());
-            base.push(clause);
+            base.pushSingle(cell.getId(), board);
             return;
         } else if (cell.isHidden()) {
             return;
@@ -90,10 +87,8 @@ public class HextechAgent extends MSAgent {
     
     @Override
     public boolean solve() {
-        
         int numOfRows = field.getNumOfRows();
         int numOfCols = field.getNumOfCols();
-        int maxVar = numOfRows * numOfCols + 1;
         Random random = new Random();
         int x = 0;
         int y = 0;
@@ -132,72 +127,57 @@ public class HextechAgent extends MSAgent {
                     addNextMove(neighbourCell);
                 }
             } else if (feedback == -1) {
-                log("BOMB");
+                log("Found bomb. Game over.");
                 break;
             } else {
                 log("Adding knowledge from feedback");
                 addKnowledge(cell);
             }
 
-            for (int i = 2; i <= maxVar; i++) {
-                if (nextMoves.size() > 0) {
-                    break;
-                }
-                
-                Cell testCell = board.findCellById(i);
-                if (!testCell.isHidden()) {
-                    continue;
-                }
-                
-                log(board.toString());
-
-                
-                log("Sjekker safespot på " + testCell.getName());
-                base.pushSingle(testCell.getId(), board);                    
-
-                Boolean isSatisfiable = solver.ask(base, maxVar);
-                base.pop();
-                if (isSatisfiable == null) {
-                    log("Safe field contra on: " + i + " (" + testCell.getName() + ")\n");
-                    base.pushSingle(testCell.getId() * -1, board);
-                    nextMoves.add(testCell);
-                    break;
-                }
-                else if (!isSatisfiable) {
-                    log("Found a safe cell in " + i + "(" + testCell.getX() + ", " + testCell.getY() + ")");
-                    nextMoves.add(testCell);
-                    continue;
-                } else {
-                    log("We did not find any safe cells.");
-                }
-                
-                // Check for bombs
-                log("Sjekker bomber på " + testCell.getName());
-                base.pushSingle(testCell.getId() * -1, board);                    
-                isSatisfiable = solver.ask(base, maxVar);
-                base.pop();
-                if (isSatisfiable == null) {
-                    log("Bomb field contra on: " + i + " (" + testCell.getName() + ")\n");
-                    base.pushSingle(testCell.getId(), board);
-                    testCell.setBomb();
-                    i = 1;
-                    continue;
-                }
-                else if (!isSatisfiable) {
-                    log("Found a bomb cell in " + i + "(" + testCell.getX() + ", " + testCell.getY() + ")");
-                    testCell.setBomb();
-                    base.pushSingle(testCell.getId(), board);
-                    i = 1;
-                    continue;
-                } else {
-                    log("We did not find any bomb cells.");
-                }
-            }
+            findNewMoves();
             
             
         } while (feedback > -1 && !field.solved());
 
         return field.solved();
+    }
+    
+    private void findNewMoves() {
+        ArrayList<Cell> allCells = board.getAllCells();
+        for (Cell testCell : allCells) {
+            if (nextMoves.size() > 0) {
+                break;
+            }
+            
+            if (!testCell.isHidden()) {
+                continue;
+            }
+            
+            log(board.toString());
+            
+            log("Antar at det er en bombe på: " + testCell.getName());
+            base.pushSingle(testCell.getId(), board);                    
+            Boolean isSatisfiable = solver.ask(base, allCells.size());
+            base.pop();
+            if (isSatisfiable == null || !isSatisfiable) {
+                log("Kan umulig være en bombe: " + testCell.getId() + " (" + testCell.getName() + ")\n");
+                base.pushSingle(testCell.getId() * -1, board);
+                nextMoves.add(testCell);
+                break;
+            }
+            
+            log("Antar at er en trygg celle: " + testCell.getName());
+            base.pushSingle(testCell.getId() * -1, board);                    
+            isSatisfiable = solver.ask(base, allCells.size());
+            base.pop();
+            if (isSatisfiable == null || !isSatisfiable) {
+                log("Kan umulig være trygg: " + testCell.getId() + " (" + testCell.getName() + ")\n");
+                base.pushSingle(testCell.getId(), board);
+                testCell.setBomb();
+                findNewMoves();
+                return;
+            }
+        }
     }
     
     private void log(String message) {
