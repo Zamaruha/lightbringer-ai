@@ -17,7 +17,7 @@ public class AgentOfLight extends MSAgent {
     
     int MAXVAR;
 
-    // -1 = confirmed bomb, 0 = unknown, 1 = confirmed safe/uncovered
+    // -1 = confirmed bomb, 0 = unknown, 1 = confirmed safe/uncovered 
     int[] board;
 
     ISolver knowledgeBase = new ModelIterator(SolverFactory.newDefault());

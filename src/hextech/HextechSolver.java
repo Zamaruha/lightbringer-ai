@@ -10,7 +10,7 @@ public class HextechSolver {
     private ISolver solver;
     
     public HextechSolver() {
-        solver = SolverFactory.newLight();
+        solver = SolverFactory.newDefault();
     }
 
     public Boolean ask(KnowledgeBase base, int maxVar) {
