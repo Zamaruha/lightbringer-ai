@@ -40,16 +40,16 @@ public class HextechAgent extends MSAgent {
     
     private void addKnowledge(Cell cell) {
         if (cell.isBomb()) {
-            //base.pushSingle(cell.getId(), board, true);
-            base.runCleanup(board);
+            base.pushSingle(cell.getId(), board, false);
+            //base.runCleanup(board);
             return;
         } else if (cell.isHidden()) {
             return;
         }
         
         // Add this as not bomb
-        //base.pushSingle(-cell.getId(), board, true);
-        base.runCleanup(board);
+        base.pushSingle(-cell.getId(), board, false);
+        //base.runCleanup(board);
         
         // Add the clauses for the neighbours
         ArrayList<Cell> neighbourCells = board.getNeighbours(cell);
@@ -131,8 +131,8 @@ public class HextechAgent extends MSAgent {
             log(board.toString());
             
             if (feedback == 0) {
-                //base.pushSingle(-cell.getId(), board, true);
-                base.runCleanup(board);
+                base.pushSingle(-cell.getId(), board, false);
+                //base.runCleanup(board);
                 ArrayList<Cell> neighbourCells = board.getNeighbours(cell);
                 for (Cell neighbourCell : neighbourCells) {
                     addNextMove(neighbourCell);
@@ -145,6 +145,8 @@ public class HextechAgent extends MSAgent {
                 addKnowledge(cell);
             }
 
+            // Optimize knowledge-base before we start
+            base.runCleanup(board);
             findNewMoves();
             
             log("Knowledgebase size: " + base.size());
@@ -185,7 +187,7 @@ public class HextechAgent extends MSAgent {
             base.pop();
             if (isSatisfiable == null || !isSatisfiable) {
                 //log("Has to be bomb: " + testCell.getId() + " (" + testCell.getName() + ")\n");
-                base.pushSingle(testCell.getId(), board, true);
+                base.pushSingle(testCell.getId(), board, false);
                 testCell.setBomb();
                 findNewMoves();
                 return;
